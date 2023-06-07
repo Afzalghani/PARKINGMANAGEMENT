@@ -13,7 +13,100 @@ func Hello(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("this is working condition"))
 }
 
-//Create the ParkingSlot
+//Create the Parked Space
+func CreateParkedSpace(w http.ResponseWriter, r *http.Request){
+	var parkedSpace model.ParkedCar;
+
+	//Decode the request that is comming 
+
+	err := json.NewDecoder(r.Body).Decode(&parkedSpace);
+
+	if err!= nil{
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError);
+		return;
+	}
+
+	_, err = db.Exec("INSERT INTO parkedcar(parkedcarId, carId,slotId,parkerId,status,paymentId) VALUES(?,?,?,?,?,?)", &parkedSpace.ParkedCarID,&parkedSpace.CarID,&parkedSpace.SlotID, &parkedSpace.ParkerID,&parkedSpace.Status,&parkedSpace.PaymentID);
+
+
+	if err!= nil{
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	   return;
+	}
+
+	
+}
+
+
+//Get the ParkedCareDetails with all the details form payment to space etc.
+func GetParkedSpaceDetails(w http.ResponseWriter, r *http.Request){
+
+	var parkedCars []model.ParkedCar;
+
+	rows, err := db.Query("SELECT * FROM parkedcar");
+	if err!= nil{
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return;
+	}
+
+	for rows.Next(){
+		var  parkedSpace model.ParkedCar
+
+		err = rows.Scan(&parkedSpace.ParkedCarID,&parkedSpace.CarID,&parkedSpace.SlotID, &parkedSpace.ParkerID,&parkedSpace.Status,&parkedSpace.PaymentID)
+        
+		if err!= nil{
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		parkedCars= append(parkedCars, parkedSpace)
+	}
+
+	_ = json.NewEncoder(w).Encode(parkedCars);
+
+
+
+}
+
+//Get the parkingSlot details
+func GetParkingSlotDetails(w http.ResponseWriter, r *http.Request){
+	var slots []model.ParkingSlot;
+
+	rows, err := db.Query("SELECT * FROM parkingslot");
+
+	if err!= nil{
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	defer rows.Close()
+
+	for rows.Next(){
+		var slot model.ParkingSlot;
+
+		err := rows.Scan(&slot.SlotID, &slot.Size)
+
+		if err!= nil{
+		    log.Println(err)
+		    w.WriteHeader(http.StatusInternalServerError)
+		     return
+		}
+
+		slots = append(slots, slot)
+	   
+	}
+
+	json.NewEncoder(w).Encode(slots);
+	
+     
+
+}
+
+//Create the ParkingSlot 
 func CreateParkingSlot(w http.ResponseWriter, r *http.Request){
 
 	var slot model.ParkingSlot;

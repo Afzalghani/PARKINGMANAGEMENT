@@ -15,6 +15,10 @@ func Routes() http.Handler {
 	mux.HandleFunc("/payments",controller.GetPaymentDetails)
 	mux.HandleFunc("/parker",controller.Createparker)
 	mux.HandleFunc("/parkers",controller.GetParkerDetails)
+    mux.HandleFunc("/slot", controller.CreateParkingSlot)
+	mux.HandleFunc("/slots",controller.GetParkingSlotDetails);
+	mux.HandleFunc("/parkedCar",controller.CreateParkedSpace)
+	mux.HandleFunc("/parkedCars",controller.GetParkedSpaceDetails);
    
 	return mux;
 }
